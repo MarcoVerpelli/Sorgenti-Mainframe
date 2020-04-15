@@ -9,6 +9,6 @@ siano di soli 5 caratteri, la risposta è che in origine il programma fu scritto
 
 ![Output](https://github.com/MarcoVerpelli/Sorgenti-Mainframe/blob/master/FigureFattoriali/OUTPUT.png)
 
-L'immagine originale dal libro originale
+L'immagine originale dal libro
 
 ![Originale](https://github.com/MarcoVerpelli/Sorgenti-Mainframe/blob/master/FigureFattoriali/ORIGINALE.png)
