@@ -1,0 +1,352 @@
+C Figure Fattoriali
+
+C il vettore con le cifre del fattoriale è globale
+      COMMON C(8229)
+      INTEGER MAX,MIN,MODO,E/'E'/,G/'G'/,L/'L'/,O/'O'/,T/'T'/
+      LOGICAL*1 C
+      EXTERNAL LESA,LLOS,LOTT,LTRI,SESA,SLOS,SOTT,STRI
+      READ(5,100) MODO,MIN,MAX
+      IF((MODO.NE.G).AND.
+     &   (MODO.NE.T).AND.(MODO.NE.L).AND.(MODO.NE.E).AND.(MODO.NE.O))
+     &  CALL ERROR('modo deve essere solo G, T, L, E, O',35)
+      IF((MIN.LT.0).OR.(MAX.LT.0).OR.(MIN.GT.MAX))
+     &  CALL ERROR('limiti inconsistenti',20)
+      IF((MODO.EQ.T).AND.(MAX.GT.1494).OR.
+     &   (MODO.EQ.L).AND.(MAX.GT.2545).OR.
+     &   (MODO.EQ.E).AND.(MAX.GT.2236).OR.
+     &   (MODO.EQ.O).AND.(MAX.GT.2739))
+     &  CALL ERROR('eccede il limite di 132 caratteri',33)
+      IF(MODO.EQ.G) CALL ESMP
+      IF(MODO.EQ.T) CALL TFOR(LTRI,STRI,MIN,MAX,'triangolo',9)
+      IF(MODO.EQ.L) CALL TFOR(LLOS,SLOS,MIN,MAX,'losanga',7)
+      IF(MODO.EQ.E) CALL TFOR(LESA,SESA,MIN,MAX,'esagono',7)
+      IF(MODO.EQ.O) CALL TFOR(LOTT,SOTT,MIN,MAX,'ottagono',8)
+100   FORMAT(A1,2(1XI4))
+      STOP
+      END
+
+C stampa usando STMP tutte le forme LFOR comprese tra MIN e MAX
+      SUBROUTINE TFOR(LFOR,STMP,MIN,MAX,FNAM,LNAM)
+      COMMON C(8229)
+      INTEGER FATT,LI,LMAX,LMIN,LN,LNC,LZF,MAX,MIN,N,NC,ZF,ZRFN
+      REAL LFOR,LR
+      LOGICAL*1 C
+C AMIN,AMAX,AN,ANC <= 9.999 AZF <= 999
+      LOGICAL*1 AMAX(5),AMIN(5),AN(5),ANC(5),AZF(3),FNAM(LNAM)
+      LOGICAL T1/.FALSE./,FF/.FALSE./
+      CALL I2A(MIN,LMIN,AMIN)
+      CALL I2A(MAX,LMAX,AMAX)
+      DO 10 N=MIN,MAX
+        NC=KMNT(N)
+        LR=LFOR(NC)
+        LI=LR
+        IF(LR.NE.LI) GO TO 10
+        T1=.TRUE.
+        CALL STF(AMIN,LMIN,AMAX,LMAX,FNAM,LNAM,FF)
+        FF=.TRUE.
+        CALL STMP(FATT(N))
+        CALL I2A(N,LN,AN)
+        CALL I2A(NC,LNC,ANC)
+        ZF=ZRFN(N)
+        CALL I2A(ZF,LZF,AZF)
+        CALL SFF(AN,LN,NC,ANC,LNC,ZF,AZF,LZF)
+10    CONTINUE
+      IF(T1) RETURN
+      CALL STF(AMIN,LMIN,AMAX,LMAX,FNAM,LNAM,FF)
+      CALL SCEN('Nessuno',7)
+      RETURN
+      END
+
+C fattoriale di N: ritorna numero di cifre e le cifre in C (globale)
+      INTEGER FUNCTION FATT(N)
+      COMMON C(8229)
+      INTEGER I,M,N,NC,R
+      LOGICAL*1 C
+      NC=1
+      C(1)=1
+      IF(N.EQ.0) GO TO 50
+      M=N
+10    R=0
+      DO 20 I=1,NC
+        R=C(I)*M+R
+        C(I)=MOD(R,10)
+        R=R/10
+20    CONTINUE
+30    IF(R.EQ.0) GO TO 40
+      NC=NC+1
+      C(NC)=MOD(R,10)
+      R=R/10
+      GO TO 30
+40    M=M-1
+      IF(M.GT.1) GO TO 10
+50    FATT=NC
+      RETURN
+      END
+
+C lato triangolo composto da N cifre
+      REAL FUNCTION LTRI(N)
+      INTEGER N
+      LTRI=SQRT(FLOAT(N))
+      RETURN
+      END
+
+C lato losanga composta da N cifre
+      REAL FUNCTION LLOS(N)
+      INTEGER N
+      LLOS=(SQRT(2.*N-1)+1)/2
+      RETURN
+      END
+
+C lato esagono composto da N cifre
+      REAL FUNCTION LESA(N)
+      INTEGER N
+      LESA=(SQRT(16.*N-7)+5)/8
+      RETURN
+      END
+
+C lato ottagono composto da N cifre
+      REAL FUNCTION LOTT(N)
+      INTEGER N
+      LOTT=(SQRT(7.*N-3)+5)/7
+      RETURN
+      END
+
+C Kamenetsky: ritorna il numero di cifre di N!
+      INTEGER FUNCTION KMNT(N)
+      INTEGER N
+      REAL C1/1.83787706640934548/,C2/4.60517018598809136/
+      IF(N.LT.2) GO TO 10
+      KMNT=((C1-2*N+ALOG(FLOAT(N))*(1+2*N))/C2)+1
+      RETURN
+10    KMNT=1
+      RETURN
+      END
+
+C ritorna il numero di zeri finali di N!
+      INTEGER FUNCTION ZRFN(N)
+      INTEGER N,P,S,T
+      T=0
+      P=5
+10    S=N/P
+      IF(S.GT.0) GO TO 20
+      ZRFN=T
+      RETURN
+20    T=T+S
+      P=P*5
+      GO TO 10
+      END
+
+C gli esempi tratti dal libro
+      SUBROUTINE ESMP
+      COMMON C(8229)
+      INTEGER FATT
+      LOGICAL*1 C
+      CALL STE
+      CALL STRI(FATT(12))
+      CALL SFE('9 cifre di 12! nel testo a pagina 35',36)
+      CALL STEFF
+      CALL STRI(FATT(105))
+      CALL SFE('169 cifre di 105! figura 10 a pagina 37',39)
+      CALL STEFF
+      CALL STRI(FATT(508))
+      CALL SFE('1.156 cifre di 508! figura 11 a pagina 38',41)
+      CALL STEFF
+      CALL SLOS(FATT(35))
+      CALL SFE('41 cifre di 35! nel testo alle pagine 37 e 38',45)
+      CALL STEFF
+      CALL SESA(FATT(477))
+      CALL SFE('1.073 cifre di 477! figura 12 a pagina 39',41)
+      CALL STEFF
+      CALL SOTT(FATT(2206))
+      CALL SFE('6.421 cifre di 2.206! figura 13 pagina 40',41)
+      RETURN
+      END
+
+C stampa una linea LIN lunga LUN, centrata
+      SUBROUTINE SCEN(LIN,LUN)
+      INTEGER B,CS,LUN
+      LOGICAL*1 LIN(LUN)
+      LOGICAL*1 BLANK/' '/
+      CS=(132-LUN)/2
+      WRITE(6,100) (BLANK,B=1,CS),LIN
+      RETURN
+100   FORMAT(132A1)
+      END
+
+C converte intero in caratteri con separatore di migliaia
+C N.B.
+C  * funziona fino a 9.999
+C  * ALOG10 da problemi di precisione
+      SUBROUTINE I2A(N,LN,A)
+      INTEGER I,LN,M,N
+      LOGICAL*1 A(LN),ZERO/'0'/,SEPM/'.'/
+      M=N
+      I=0
+10    M=M/10
+      IF(M.EQ.0) GO TO 20
+      I=I+1
+      GO TO 10
+20    LN=I+I/3+1
+      M=N
+      I=0
+30    IF(I.NE.3) GO TO 40
+      A(LN-I)=SEPM
+      I=I+1
+40    A(LN-I)=ZERO+MOD(M,10)
+      I=I+1
+      M=M/10
+      IF(M.GT.0) GO TO 30
+      RETURN
+      END
+
+C crea una linea (della forma) lunga LUN a partire da NC e la stampa
+      SUBROUTINE SLIN(LUN,NC)
+      COMMON C(8229)
+      INTEGER I,LUN,NC
+      LOGICAL*1 C
+      LOGICAL*1 LIN(132)
+      LOGICAL*1 ZERO/'0'/
+      DO 10 I=1,LUN
+        LIN(I)=ZERO+C(NC)
+        NC=NC-1
+10    CONTINUE
+      CALL SCEN(LIN,LUN)
+      RETURN
+      END
+
+C stampa in forma di triangolo dato numero di cifre NC
+      SUBROUTINE STRI(NC)
+      INTEGER I,L,NC
+      REAL LTRI
+      L=2*LTRI(NC)
+      DO 10 I=1,L,2
+        CALL SLIN(I,NC)
+10    CONTINUE
+      RETURN
+      END
+
+C stampa in forma di losanga dato numero di cifre NC
+      SUBROUTINE SLOS(NC)
+      INTEGER I,L,NC
+      REAL LLOS
+      L=2*LLOS(NC)
+      DO 10 I=1,L,2
+        CALL SLIN(I,NC)
+10    CONTINUE
+C test perché FORTRAN esegue sempre almeno una volta i DO loop
+      IF(L.EQ.2) RETURN
+      DO 20 I=3,L,2
+        CALL SLIN(L-I,NC)
+20    CONTINUE
+      RETURN
+      END
+
+C stampa in forma di esagono dato numero di cifre NC
+      SUBROUTINE SESA(NC)
+      INTEGER I,L,L1,L2,NC
+      REAL LESA
+      L=LESA(NC)
+      L1=2*L-1
+      DO 10 I=0,L1,2
+        CALL SLIN(L+I,NC)
+10    CONTINUE
+C test perché FORTRAN esegue sempre almeno una volta i DO loops
+      IF(L.EQ.1) RETURN
+      L2=L1+L
+      DO 20 I=3,L1,2
+        CALL SLIN(L2-I,NC)
+20    CONTINUE
+      RETURN
+      END
+
+C stampa in forma di ottagono dato numero di cifre NC
+      SUBROUTINE SOTT(NC)
+      INTEGER I,L,L1,L2
+      REAL LOTT
+      L=LOTT(NC)
+      L1=2*L-1
+      DO 10 I=0,L1,2
+        CALL SLIN(L+I,NC)
+10    CONTINUE
+C test perché FORTRAN esegue sempre almeno una volta i DO loop
+      IF(L.EQ.1) RETURN
+      L2=L1+L-1
+      DO 20 I=2,L
+        CALL SLIN(L2,NC)
+20    CONTINUE
+      DO 30 I=2,L1,2
+        CALL SLIN(L2-I,NC)
+30    CONTINUE
+      RETURN
+      END
+
+C stampa testata esempi, prima salta una pagina
+      SUBROUTINE STEFF
+      WRITE(6,100)
+C stampa testata esempi, senza prima saltare una pagina
+      ENTRY STE
+      CALL SCEN('Martin Gardner, Show di Magia Matematica',40)
+      CALL SCEN(' ',1)
+      RETURN
+100   FORMAT('1')
+      END
+
+C stampa testata forme
+      SUBROUTINE STF(AMIN,LMIN,AMAX,LMAX,FNAM,LNAM,FF)
+      INTEGER B,CS,LMAX,LMIN,LNAM
+      LOGICAL*1 AMAX(LMAX),AMIN(LMIN),FNAM(LNAM)
+      LOGICAL*1 S1(12)/'I','n',' ','f','o','r','m','a',' ','d','i',' '/
+      LOGICAL*1 S2(4)/' ','d','a',' '/
+      LOGICAL*1 S3(9)/'!',' ','f','i','n','o',' ','a',' '/
+      LOGICAL*1 S4/'!'/
+      LOGICAL*1 BLANK/' '/
+      LOGICAL FF
+      IF(FF) WRITE(6,100)
+      CS=(132-(12+LMIN+4+LMAX+9+LNAM+1))/2
+      WRITE(6,200) (BLANK,B=1,CS),S1,FNAM,S2,AMIN,S3,AMAX,S4
+      CALL SCEN(' ',1)
+      RETURN
+100   FORMAT('1')
+200   FORMAT(132A1)
+      END
+
+C stampa fondo esempi: linea LIN lunga LUN
+      SUBROUTINE SFE(LIN,LUN)
+      INTEGER LUN
+      LOGICAL*1 LIN(LUN)
+      CALL SCEN(' ',1)
+      CALL SCEN(LIN,LUN)
+      RETURN
+      END
+
+C stampa fondo forme
+      SUBROUTINE SFF(AN,LN,NC,ANC,LNC,ZF,AZF,LZF)
+      INTEGER B,CS,LN,LNC,LZF,NC,ZF
+      LOGICAL*1 AN(LN),ANC(LNC),AZF(LZF)
+      LOGICAL*1 S1(5)/'!',' ','d','i',' '/
+      LOGICAL*1 S2(6)/' ','c','i','f','r','a'/
+      LOGICAL*1 S3(5)/' ','c','o','n',' '/
+      LOGICAL*1 S4(12)/' ','z','e','r','o',' ','f','i','n','a','l','e'/
+      LOGICAL*1 BLANK/' '/,E/'e'/,I/'i'/
+      IF(NC.GT.1) S2(6)=E
+      IF(ZF.NE.0) GO TO 10
+      CS=(132-(LN+5+LNC+6))/2
+      WRITE(6,100) (BLANK,B=1,CS),AN,S1,ANC,S2
+      RETURN
+10    IF(ZF.EQ.1) GO TO 20
+      S4(5)=I
+      S4(12)=I
+20    CS=(132-(LN+5+LNC+6+5+LZF+12))/2
+      WRITE(6,100) (BLANK,B=1,CS),AN,S1,ANC,S2,S3,AZF,S4
+      RETURN
+100   FORMAT(/132A1)
+      END
+
+C riporta messaggio di errore e muore
+      SUBROUTINE ERROR(ERR,LUN)
+      INTEGER LUN
+      LOGICAL*1 ERR(LUN)
+      WRITE(6,100) ERR
+      STOP
+100   FORMAT(1X'Errore: ',124A1)
+      END

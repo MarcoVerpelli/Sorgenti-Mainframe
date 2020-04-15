@@ -1,0 +1,409 @@
+(* Nel libro Show di Magia Matematica di Martin Gardner nel capitolo 4        *)
+(* Stranezze dei fattoriali, viene citato il libro di Robert E. Smith         *)
+(* The Bases of FORTRAN, dove si trova un programma per stampare le cifre di  *)
+(* n! fattoriale in forma di triangolo, losanga, esagono ed ottagono.         *)
+(* Questo libro non si trova on-line, quindi basandomi poco sul testo e molto *)
+(* sulle figure del libro di Gardner ecco la mia versione in Pascal.          *)
+(*                                                                            *)
+(* Originali:                                                                 *)
+(* Scientific American Vol. 217, No. 2 (August 1967), pp. 104-109             *)
+(* Mathematical Magic Show - Alfred A. Knopf, Inc.,New York, NY, 1977         *)
+(*                                                                            *)
+(* N.B. nella vecchia versione del compilatore NON è possibile passare le     *)
+(*      funzioni come parametro                                               *)
+(*      altre limitazioni sono la mancanza di set di caratteri e la mancanza  *)
+(*      della clausola otherwise nel case                                     *)
+(*                                                                            *)
+(*      mi trovo meglio con writeln('1') rispetto a page(output)              *)
+
+program FigureFattoriali(input,output);
+(* fattoriale massimo il quale nella forma voluta sia stampabile in 132       *)
+(* colonne                                                                    *)
+const MaxTri=1494; (* 4.096 cifre, lato 64, linea massima 64*2 - 1 = 127 *)
+      MaxLos=2545; (* 7.565 cifre, lato 62, linea massima 62*2 - 1 = 123 *)
+      MaxEsa=2236; (* 6.521 cifre, lato 41, linea massima 41*3 - 2 = 121 *)
+      MaxOtt=2739; (* 8.229 cifre, lato 35, linea massima 35*3 - 2 = 103 *)
+      MaxNc=8229;  (* ovviamente basta fino a 2.739! *)
+type forme=(triangolo,losanga,esagono,ottagono); (* forme ammissibili *)
+var cifre:array[1..MaxNc] of 0..9; (* fattoriale nella forma voluta *)
+    min,max:integer; (* input: intervallo di ricerca voluto *)
+    modo:char; (* input: modo di esecuzione del programma *)
+
+   function LatoTriangolo(n:integer):real;
+   begin
+      LatoTriangolo:=sqrt(n)
+   end;
+
+   function LatoLosanga(n:integer):real;
+   begin
+      LatoLosanga:=(sqrt(2*n-1)+1)/2
+   end;
+
+   function LatoEsagono(n:integer):real;
+   begin
+      LatoEsagono:=(sqrt(16*n-7)+5)/8
+   end;
+
+   function LatoOttagono(n:integer):real;
+   begin
+      LatoOttagono:=(sqrt(7*n-3)+5)/7
+   end;
+
+   procedure StampaForma(forma:forme; n:integer); (* stampa n cifre in forma *)
+
+      procedure StampaLinea(lunghezza:integer); (* stampa una riga centrata *)
+      var fine,i:integer;
+      begin
+         fine:=n-lunghezza;
+         write(' ',' ':(132-lunghezza)div 2);
+         for i:=n downto fine+1
+         do write(cifre[i]:1);
+         writeln;
+         n:=fine
+      end;
+
+      (* stampa in forma di triangolo *)
+      (* n^2 Sloane A000290           *)
+      procedure StampaTriangolo(lato:integer);
+      var i:integer;
+      begin
+         for i:=1 to lato
+         do StampaLinea(2*i-1)
+      end;
+
+      (* stampa in forma di losanga (rombo)           *)
+      (* 2*n*(n+1)+1 anche n^2+(n+1)^2 Sloane A001844 *)
+      procedure StampaLosanga(lato:integer);
+      var i:integer;
+      begin
+         for i:=1 to lato
+         do StampaLinea(2*i-1);
+         for i:=lato-1 downto 1
+         do StampaLinea(2*i-1)
+      end;
+
+      (* stampa in forma di esagono *)
+      (* 4*n^2+3*n+1 Sloane A033951 *)
+      procedure StampaEsagono(lato:integer);
+      var i:integer;
+      begin
+         for i:=0 to lato-1
+         do StampaLinea(lato+2*i);
+         for i:=lato-2 downto 0
+         do StampaLinea(lato+2*i)
+      end;
+
+      (* stampa in forma di ottagono *)
+      (* 7*n^2+4*n+1 Sloane A005892  *)
+      procedure StampaOttagono(lato:integer);
+      var i:integer;
+      begin
+         for i:=0 to lato-1
+         do StampaLinea(lato+2*i);
+         for i:=1 to lato-2
+         do StampaLinea(3*lato-2);
+         for i:=lato-1 downto 0
+         do StampaLinea(lato+2*i)
+      end;
+
+   begin (* StampaForma *)
+      case forma of
+         triangolo:StampaTriangolo(trunc(LatoTriangolo(n)));
+           losanga:StampaLosanga(trunc(LatoLosanga(n)));
+           esagono:StampaEsagono(trunc(LatoEsagono(n)));
+          ottagono:StampaOttagono(trunc(LatoOttagono(n)))
+      end;
+      writeln
+   end;
+
+   (* calcola n! Sloane A000142                                       *)
+   (* ritorna il numero di cifre di n! e le cifre nel vettore globale *)
+   function Fattoriale(n:integer):integer;
+   var i,j,nc,riporto:integer;
+   begin
+      nc:=1;
+      cifre[1]:=1;
+      for i:=n downto 2
+      do begin
+            riporto:=0;
+            for j:=1 to nc
+            do begin
+                  riporto:=riporto+cifre[j]*i;
+                  cifre[j]:=riporto mod 10;
+                  riporto:=riporto div 10
+               end;
+            while riporto>0
+            do begin
+                  nc:=nc+1;
+                  cifre[nc]:=riporto mod 10;
+                  riporto:=riporto div 10
+               end
+         end;
+      Fattoriale:=nc
+   end;
+
+   procedure EsempiLibro; (* Zanichelli, Bologna, 1980 *)
+
+      procedure TestataEsempi(prima:boolean); (* prima riga di ogni pagina *)
+      begin
+         if not prima
+         then writeln('1');
+         writeln('Martin Gardner, Show di Magia Matematica':87);
+         writeln
+      end;
+
+   begin
+      TestataEsempi(true);
+      StampaForma(triangolo,Fattoriale(12));
+      writeln('9 cifre di 12! nel testo a pagina 35':85);
+      TestataEsempi(false);
+      StampaForma(triangolo,Fattoriale(105));
+      writeln('169 cifre di 105! figura 10 a pagina 37':86);
+      TestataEsempi(false);
+      StampaForma(triangolo,Fattoriale(508));
+      writeln('1.156 cifre di 508! figura 11 a pagina 38':87);
+      TestataEsempi(false);
+      StampaForma(losanga,Fattoriale(35));
+      (* nel libro la cifra centrale '6' non è stampata  *)
+      (* come sfida al lettore viene chiesto di trovarla *)
+      writeln('41 cifre di 35! nel testo alle pagine 37 e 38':90);
+      TestataEsempi(false);
+      StampaForma(esagono,Fattoriale(477));
+      writeln('1.073 cifre di 477! figura 12 a pagina 39':87);
+      TestataEsempi(false);
+      StampaForma(ottagono,Fattoriale(2206));
+      writeln('6.421 cifre di 2.206! figura 13 pagina 40':87)
+   end;
+
+   (* calcola, verifica e se è nella forma voluta stampa *)
+   (* non particolarmente intelligente od efficiente     *)
+   procedure TestForma(forma:forme; min,max:integer);
+   var n,nc:integer;
+       trovato1,prima:boolean;
+
+      (* numero di cifre di n! Sloane A034886                               *)
+      (* funzione valida fino a n = 6.561.101.970.383                       *)
+      (* causa limiti precisione arriva fino a n = 268.609.166 per il quale *)
+      (* ritorna 2.147.483.642 (circa maxint)                               *)
+      function Kamenetsky(n:integer):integer;
+      const C1=1.83787706640934548; (* Ln(2*Pi) *)
+            C2=4.60517018598809136; (* 2*Ln(10) *)
+      begin
+         if n<2
+         then Kamenetsky:=1
+         else Kamenetsky:=trunc((C1-2*n+ln(n)*(1+2*n))/C2)+1
+      end;
+
+      (* dato n, ritorna il numero massimo il cui fattoriale ha n cifre *)
+      (* N.B. per ora non è usata!                                      *)
+      (*
+      function InvKamenetsky(n:integer):integer;
+      var l,h,m,k:integer;
+      begin
+         if n=1
+         then InvKamenetsky:=3
+         else begin
+                 l:=0;
+                 h:=n;
+                 m:=2*n;
+                 k:=Kamenetsky(m);
+                 while (l<=h)and(k<>n)
+                 do begin
+                       if k<n
+                       then l:=m+1
+                       else h:=m-1;
+                       m:=(l+h) div 2;
+                       k:=Kamenetsky(m)
+                    end;
+                 InvKamenetsky:=m
+              end
+      end;
+      *)
+
+      (* vero se n è rappresentabile in forma *)
+      function InForma(forma:forme; n:integer):boolean;
+      var lato:real;
+      begin
+         case forma of
+            triangolo:lato:=LatoTriangolo(n);
+            losanga:lato:=LatoLosanga(n);
+            esagono:lato:=LatoEsagono(n);
+            ottagono:lato:=LatoOttagono(n)
+         end;
+         InForma:=lato=trunc(lato)
+      end;
+
+      (* lunghezza di n con separatori di migliaia *)
+      function Lun1000(n:integer):integer;
+      const C1=2.30258509299404568; (* Ln(10) *)
+      var l:integer;
+      begin
+         if n=0
+         then Lun1000:=1
+         else begin
+                 l:=trunc(ln(n)/C1);
+                 Lun1000:=l+l div 3+1
+              end
+      end;
+
+      (* stampa n con separatore di migliaia, in campo m *)
+      procedure Stampa1000(n,m:integer);
+
+         (* stampa n<1000 eventualmente preceduto da zeri *)
+         procedure Stampa0(n:integer);
+         begin
+            case n of
+                 0..9:write('00');
+               10..99:write('0')
+            (* non esiste otherwise, se nessun caso *)
+            (* è verificato prosegue in silenzio... *)
+            end;
+            write(n:1)
+         end;
+
+      begin (* Stampa1000 *)
+         if n<1000
+         then write(n:m)
+         else begin
+                 Stampa1000(n div 1000,m-4);
+                 write('.');
+                 Stampa0(n mod 1000)
+              end
+      end;
+
+      (* stampa centrata della prima riga di ogni pagina                  *)
+      (* ricalcola ogni volta, inefficente ma nel complesso più leggibile *)
+      procedure Testata(forma:forme; min,max:integer; prima:boolean);
+      var cmin,cmax,ctst:integer;
+      begin
+         cmin:=Lun1000(min);
+         cmax:=Lun1000(max);
+         case forma of
+            triangolo:ctst:=(98-cmin-cmax) div 2;
+              losanga:ctst:=(100-cmin-cmax) div 2;
+              esagono:ctst:=(100-cmin-cmax) div 2;
+             ottagono:ctst:=(100-cmin-cmax) div 2
+         end;
+         if not prima
+         then writeln('1');
+         write(' ':ctst);
+         write('In forma di ');
+         case forma of
+            triangolo:write('triangolo');
+              losanga:write('losanga');
+              esagono:write('esagono');
+             ottagono:write('ottagono')
+         end;
+         write(' da ');
+         Stampa1000(min,cmin);
+         write('! fino a ');
+         Stampa1000(max,cmax);
+         writeln('!');
+         writeln
+      end;
+
+      (* numero di zeri finali di n! Sloane A027868 *)
+      function ZeroFinali(n:integer):integer;
+      var t,p,s:integer;
+      begin
+         t:=0;
+         p:=5;
+         s:=n div p;
+         while s>0
+         do begin
+               t:=t+s;
+               p:=p*5;
+               s:=n div p
+            end;
+         ZeroFinali:=t
+      end;
+
+      (* stampa centrata della ultima riga di ogni pagina *)
+      procedure Fondo(n,nc,zf:integer);
+      var cn,cnc,czf,cfnd:integer;
+      begin
+         cn:=Lun1000(n);
+         cnc:=Lun1000(nc);
+         czf:=Lun1000(zf);
+         if zf=0
+         then cfnd:=(122-cn-cnc) div 2
+         else cfnd:=(105-cn-cnc-czf) div 2;
+         write(' ':cfnd);
+         Stampa1000(n,cn);
+         write('! di ');
+         Stampa1000(nc,cnc);
+         write(' cifr');
+         if nc>1
+         then write('e')
+         else write('a');
+         if zf=0
+         then writeln
+         else begin
+                 write(' con ');
+                 Stampa1000(zf,czf);
+                 write(' zer');
+                 if zf>1
+                 then writeln('i finali')
+                 else writeln('o finale')
+              end
+      end;
+
+   begin (* TestForma *)
+      trovato1:=false; (* indica se trovato almeno un fattoriale da stampare *)
+      prima:=true; (* indica se è la prima pagina stampata *)
+      for n:=min to max
+      do begin
+            nc:=Kamenetsky(n);
+            if InForma(forma,nc)
+            then begin
+                    trovato1:=true;
+                    Testata(forma,min,max,prima);
+                    prima:=false;
+                    StampaForma(forma,Fattoriale(n));
+                    Fondo(n,nc,ZeroFinali(n))
+                 end
+         end;
+      if not trovato1
+      then begin
+              Testata(forma,min,max,prima);
+              writeln('Nessuno':70)
+           end
+   end;
+
+   (* riporta tipo errore e muore *)
+   procedure Errore(err:integer);
+   begin
+      write(' Errore: ');
+      case err of
+         1:writeln('modo deve essere solo G, T, L, E, O');
+         2:writeln('limiti inconsistenti');
+         3:writeln('eccede il limite di 132 caratteri')
+      end;
+      exit(err) (* muore con err come return code *)
+   end;
+
+begin (* main *)
+(* ci sono 2 modi di esecuzione:                                              *)
+(* - stampare quello che si trova nel libro di Gardner (G)                    *)
+(* - stampare i fattoriali rappresentabili in una delle possibili forme       *)
+(*   (T,L,E,O) seguito dai limiti minimo e massimo nei quali cercare          *)
+   readln(modo,min,max);
+   (* non posso verificare con: modo in ['G','T','L',... *)
+   if (modo<>'G')and(modo<>'T')and(modo<>'L')and(modo<>'E')and(modo<>'O')
+   then Errore(1);
+   if modo='G'
+   then EsempiLibro
+   else begin
+           if (min<0)or(max<0)or(min>max)
+           then Errore(2);
+           if (modo='T')and(max>MaxTri)or(modo='L')and(max>MaxLos)or
+              (modo='E')and(max>MaxEsa)or(modo='O')and(max>MaxOtt)
+           then Errore(3);
+           case modo of
+              'T':TestForma(triangolo,min,max);
+              'L':TestForma(losanga,min,max);
+              'E':TestForma(esagono,min,max);
+              'O':TestForma(ottagono,min,max)
+           end
+        end
+end.
