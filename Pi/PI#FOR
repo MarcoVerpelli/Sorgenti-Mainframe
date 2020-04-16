@@ -1,0 +1,36 @@
+C inspirato alla versione che si trova su RosettaCode
+C le modifiche riguardano:
+C  * lavora con base 10000 invece che 100000
+C    questo perché un INTEGER = 4 caratteri
+C  * buffer contiene 4 caratteri per elemento invece che 5 cifre
+C    questo perché non esiste il format "zero padding"
+C    quindi è stato dimensionato a 251 per 1000 caratteri
+C  * eliminato il DO 10 loop, sostituito con IF & GO TO
+C    questo perché il passo del DO non può essere = -1
+C  * stampa 100 cifre per linea invece che 50
+C    questo perché 4 non divide 50, mentre 5 si
+C
+C come detto i vettori sono dimensionati per 1000 cifre
+      INTEGER VECT(3350)/3350*2/
+      INTEGER BUFFER(251)
+      INTEGER DV/3350/,DB/251/,BASE/10000/
+      INTEGER MORE/0/,KARRAY,NUM,K,L,N
+      DO 20 N=1,DB
+        KARRAY=0
+        L=DV
+10      NUM=BASE*VECT(L)+KARRAY*L
+        KARRAY=NUM/(2*L-1)
+        VECT(L)=NUM-KARRAY*(2*L-1)
+        L=L-1
+        IF(L.NE.0) GO TO 10
+        K=KARRAY/BASE
+C converte un numero in una stringa di 4 caratteri (con zero iniziali)
+        CALL I2A(MORE+K,BUFFER(N))
+        MORE=KARRAY-K*BASE
+20    CONTINUE
+C solo nel caso di BUFFER(1) gli zero iniziali sono "sconvenienti"
+C si assume che il valore di Pi abbia come unica cifra intera 3
+      WRITE(6,100) (BUFFER(N),N=2,DB)
+100   FORMAT(' 3.'25A4/(3X25A4))
+      STOP
+      END
