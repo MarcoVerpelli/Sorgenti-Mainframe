@@ -1,0 +1,138 @@
+C Programma per testare la subroutine magic
+      INTEGER M(30,30)
+      READ(5,*) N
+      CALL MAGIC(M,N)
+      CALL PMAGIC(M,N)
+      STOP
+      END
+C
+C Subroutine per stampare il quadrato magico
+      SUBROUTINE PMAGIC(A,N)
+      INTEGER A(N,N)
+C la documentazione differisce dalla realtà, pag. 65 e seguenti
+      CHARACTER*12 FMTCHR(1)
+      WRITE(FMTCHR,100) N,INT(ALOG10(N**2.0))+2
+100   FORMAT(1H(,I2,1HI,I2,1H))
+      WRITE(6,FMTCHR) ((A(I,J),J=1,N),I=1,N)
+      RETURN
+      END
+C
+C Versione modificata di dswap.f del pacchetto OpenBLAS
+C     interchanges two vectors.
+C     used unrolled loops for increments equal one.
+      SUBROUTINE SWAP(N,X,Y)
+C     .. Scalar Arguments ..
+      INTEGER N
+C     .. Array Arguments ..
+      INTEGER X(N),Y(N)
+C     .. Local Scalars..
+      INTEGER TEMP
+      INTEGER I,IX,IY,M,MP1
+C     ..
+C     .. Intrinsic Functions ..
+C     INTRINSIC MOD
+C
+C    code for both increments equal to 1
+C
+C
+C    clean-up loop
+C
+      M = MOD(N,3)
+      IF (M.NE.0) THEN DO
+         DO 10 I = 1,M
+            TEMP = X(I)
+            X(I) = Y(I)
+            Y(I) = TEMP
+10       CONTINUE
+         IF (N.LT.3) RETURN
+      END IF
+      MP1 = M + 1
+      DO 20 I = MP1,N,3
+         TEMP = X(I)
+         X(I) = Y(I)
+         Y(I) = TEMP
+         TEMP = X(I+1)
+         X(I+1) = Y(I+1)
+         Y(I+1) = TEMP
+         TEMP = X(I+2)
+         X(I+2) = Y(I+2)
+         Y(I+2) = TEMP
+20    CONTINUE
+      RETURN
+      END
+C
+C Versione modificata di magic.f del pacchetto Scilab
+      SUBROUTINE MAGIC(A,N)
+C     algorithms for magic squares taken from
+C        Mathematical recreations and essays, 12th ed.,
+C        by W. W. Rouse Ball and H. S. M. Coxeter
+      INTEGER A(N,N),T
+C
+      IF (MOD(N,4) .EQ. 0) GO TO 100
+      IF (MOD(N,2) .EQ. 0) M = N/2
+      IF (MOD(N,2) .NE. 0) M = N
+C
+C     odd order or upper corner of even order
+C
+      DO 20 J = 1,M
+         DO 10 I = 1,M
+            A(I,J) = 0
+10       CONTINUE
+20    CONTINUE
+      I = 1
+      J = (M+1)/2
+      MM = M*M
+      DO 40 K = 1, MM
+         A(I,J) = K
+         I1 = I-1
+         J1 = J+1
+         IF(I1.LT.1) I1 = M
+         IF(J1.GT.M) J1 = 1
+         IF(A(I1,J1).EQ.0) GO TO 30
+            I1 = I+1
+            J1 = J
+30          I = I1
+         J = J1
+40    CONTINUE
+C
+C     rest of even order
+C
+      IF (MOD(N,2) .NE. 0) RETURN
+      T = M*M
+      DO 60 I = 1, M
+         DO 50 J = 1, M
+            IM = I+M
+            JM = J+M
+            A(I,JM) = A(I,J) + 2*T
+            A(IM,J) = A(I,J) + 3*T
+            A(IM,JM) = A(I,J) + T
+50       CONTINUE
+60    CONTINUE
+      M1 = (M-1)/2
+      IF (M1.EQ.0) RETURN
+      DO 70 J = 1, M1
+         CALL SWAP(M,A(1,J),A(M+1,J))
+70    CONTINUE
+      M1 = (M+1)/2
+      M2 = M1 + M
+      CALL SWAP(1,A(M1,1),A(M2,1))
+      CALL SWAP(1,A(M1,M1),A(M2,M1))
+      M1 = N+1-(M-3)/2
+      IF(M1.GT.N) RETURN
+      DO 80 J = M1, N
+         CALL SWAP(M,A(1,J),A(M+1,J))
+80    CONTINUE
+      RETURN
+C
+C     double even order
+C
+100   K = 1
+      DO 120 I = 1, N
+         DO 110 J = 1, N
+            A(I,J) = K
+            IF (MOD(I,4)/2 .EQ. MOD(J,4)/2) A(I,J) = N*N+1 - K
+            K = K+1
+110      CONTINUE
+120   CONTINUE
+      RETURN
+      END
