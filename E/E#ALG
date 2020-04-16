@@ -1,0 +1,52 @@
+'begin'
+   'comment'
+    Sale, A.H.J. (1968). The calculation of e to many significant digits
+    The Computer Journal. 11 (2): 229-230 - MODIFICATO!;
+
+   'procedure'ecalculation(n);
+   'value'n;
+   'integer'n;
+   'begin'
+      'integer'm;
+      'real'test;
+       m:=4;
+       test:=(n+1)*2.30258509;
+ loop: m:=m+1;
+      'if'm*(ln(m)-1.0)+0.5*ln(6.2831852*m)<=test
+      'then''goto'loop;
+      'begin'
+         'integer'i,j,carry,temp;
+         'integer''array'coef[2:m];
+         'for'j:=2'step'1'until'm
+         'do'coef[j]:=1;
+          sysact(1,6,100);
+          sysact(1,12,1);
+          sysact(1,2,47);
+          outstring(1,'('e = 2.')');
+          sysact(1,14,1);
+         'for'i:=1'step'1'until'n
+         'do''begin'
+                 carry:=0;
+                'for'j:=m'step'-1'until'2
+                'do''begin'
+                        temp:=coef[j]*10+carry;
+                        carry:=temp'/'j;
+                        coef[j]:=temp-carry*j
+                    'end'of digit generation;
+                 outdigit(1,carry);
+             'end'having calculate n digits
+      'end'deleting declarations
+   'end'of ecalculation;
+
+   'procedure'outdigit(ds,d);
+   'value'ds,d;
+   'integer'ds,d;
+   'begin'
+       outsymbol(ds,'('0123456789')',d+1)
+   'end'of outdigit;
+
+   'comment'begin main;
+   'integer'nc;
+    ininteger(0,nc);
+    ecalculation(nc)
+'end'of main
