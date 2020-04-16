@@ -1,0 +1,107 @@
+         MACRO
+         $SA    &ATTR
+.**********************************************************************
+.*
+.*  NAME:  $SA
+.*
+.*  TYPE:  ASSEMBLER MACRO
+.*
+.*  DESC:  GENERATES 3270 SET ATTRIBUE ORDER
+.*
+.*  SYNTAX   : $SA   (LIST OF ATTRIBUTES) CAN BE:
+.*
+.**********************************************************************
+         COPY  $GLOBALS
+         LCLA  &I1
+         LCLB  &COLSET,&HISET
+         LCLC  &COLOR,&HI,&THEATTR
+&COLSET  SETB  0
+&HISET   SETB  0
+&I1      SETA  1
+.LOOP    ANOP
+         AIF ('&ATTR(&I1)' NE 'DEFAULT').NODFLT
+         AIF   (&COLSET).ERR001
+         AIF   (&HISET).ERR002
+&COLSET  SETB  1
+&COLOR   SETC  '00'
+&HISET   SETB  1
+&HI      SETC  '00'
+         AGO   .NXTONE
+.NODFLT  AIF ('&ATTR(&I1)' NE 'CDEFAULT').NOCDFLT
+         AIF   (&COLSET).ERR001
+&COLSET  SETB  1
+&COLOR   SETC  '00'
+         AGO   .NXTONE
+.NOCDFLT AIF ('&ATTR(&I1)' NE 'HDEFAULT').NOHDFLT
+         AIF   (&HISET).ERR002
+&HISET   SETB  1
+&HI      SETC  '00'
+         AGO   .NXTONE
+.NOHDFLT AIF ('&ATTR(&I1)' NE 'BLUE').NOBLUE
+         AIF   (&COLSET).ERR001
+&COLSET  SETB  1
+&COLOR   SETC  'F1'
+         AGO   .NXTONE
+.NOBLUE  AIF ('&ATTR(&I1)' NE 'RED').NORED
+         AIF   (&COLSET).ERR001
+&COLSET  SETB  1
+&COLOR   SETC  'F2'
+         AGO   .NXTONE
+.NORED   AIF ('&ATTR(&I1)' NE 'PINK').NOPINK
+         AIF   (&COLSET).ERR001
+&COLSET  SETB  1
+&COLOR   SETC  'F3'
+         AGO   .NXTONE
+.NOPINK  AIF ('&ATTR(&I1)' NE 'GREEN').NOGREEN
+         AIF   (&COLSET).ERR001
+&COLSET  SETB  1
+&COLOR   SETC  'F4'
+         AGO   .NXTONE
+.NOGREEN AIF ('&ATTR(&I1)' NE 'TURQ').NOTURQ
+         AIF   (&COLSET).ERR001
+&COLSET  SETB  1
+&COLOR   SETC  'F5'
+         AGO   .NXTONE
+.NOTURQ  AIF ('&ATTR(&I1)' NE 'YELLOW').NOYELLO
+         AIF   (&COLSET).ERR001
+&COLSET  SETB  1
+&COLOR   SETC  'F6'
+         AGO   .NXTONE
+.NOYELLO AIF ('&ATTR(&I1)' NE 'WHITE').NOWHITE
+         AIF   (&COLSET).ERR001
+&COLSET  SETB  1
+&COLOR   SETC  'F7'
+         AGO   .NXTONE
+.NOWHITE AIF ('&ATTR(&I1)' NE 'REVERSE').NOREV
+         AIF   (&HISET).ERR002
+&HISET   SETB  1
+&HI      SETC  'F2'
+         AGO   .NXTONE
+.NOREV   AIF ('&ATTR(&I1)' NE 'BLINK').NOBLINK
+         AIF   (&HISET).ERR002
+&HISET   SETB  1
+&HI      SETC  'F1'
+         AGO   .NXTONE
+.NOBLINK AIF ('&ATTR(&I1)' NE 'USCOR').NOUSCOR
+         AIF   (&HISET).ERR002
+&HISET   SETB  1
+&HI      SETC  'F4'
+         AGO   .NXTONE
+.NOUSCOR ANOP
+.ERROR   MNOTE 8,'&ATTR(&I1) IS AN INVALID ATTRIBUTE OPTION'
+.NXTONE  ANOP
+&I1      SETA  &I1+1
+         AIF (&I1 LE N'&ATTR).LOOP
+         AIF   (NOT &COLSET).NOCOL          ,
+&THEATTR SETC  '2842'.'&COLOR'              , GENERATE COLOR ATTR
+         DC    X'&THEATTR'                  , COLOR ATTRIBUTE
+.NOCOL   AIF   (NOT &HISET).NOHI            ,
+&THEATTR SETC  '2841'.'&HI'                 , GENERATE HILITE ATTR
+         DC    X'&THEATTR'                  , HILITE ATTRIBUTE
+.NOHI    ANOP                               ,
+         MEXIT                              ,
+.ERR001  MNOTE *,'COLOR ALREADY SET, PARM &ATTR(&I1) IGNORED'
+         AGO   .NXTONE                      ,
+.ERR002  MNOTE *,'HILITE ALREADY SET, PARM &ATTR(&I1) IGNORED'
+         AGO   .NXTONE                      ,
+         MEND                               ,
