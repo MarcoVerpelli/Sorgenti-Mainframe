@@ -4,3 +4,5 @@ Scritto per il compilatore load&go WATFIV University of Waterloo, un poco più e
 "distro" TK4-
 
 ![Output](https://github.com/MarcoVerpelli/Sorgenti-Mainframe/blob/master/Magic/OUTPUT.png)
+
+N.B. WTF è giusto per sfottere gli anglofoni ef anglofili
