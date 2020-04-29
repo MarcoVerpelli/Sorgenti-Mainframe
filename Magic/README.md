@@ -5,4 +5,4 @@ Scritto per il compilatore load&go WATFIV University of Waterloo, un poco più e
 
 ![Output](https://github.com/MarcoVerpelli/Sorgenti-Mainframe/blob/master/Magic/OUTPUT.png)
 
-N.B. WTF è giusto per sfottere gli anglofoni ef anglofili
+N.B. WTF è giusto per sfottere gli anglofoni ed anglofili
