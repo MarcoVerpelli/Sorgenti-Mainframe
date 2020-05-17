@@ -1,0 +1,38 @@
+program MandelbrotSet(output);
+label 99;
+const Xsize=131;
+      Ysize=48;
+      minRE=-2;
+      minIM=-1;
+      maxRE=1;
+      maxIM=1;
+var stepX,stepY,re,im,zr,zi,a,b:real;
+    x,y,n:integer;
+    str:array[1..27] of char;
+begin
+   stepX:=(maxRE-minRE)/Xsize;
+   stepY:=(maxIM-minIM)/Ysize;
+   str:='ABCDEFGHIJKLMNOPQRSTUVWXYZ ';
+   for y:=0 to Ysize
+   do begin
+         im:=minIM+stepY*y;
+         write(' ');
+         for x:=0 to Xsize
+         do begin
+                re:=minRE+stepX*x;
+                zr:=re;
+                zi:=im;
+                for n:=1 to 27
+                do begin
+                      a:=zr*zr;
+                      b:=zi*zi;
+                      if(a+b)>4
+                      then goto 99;
+                      zi:=zr*zi*2+im;
+                      zr:=a-b+re
+                   end;
+ 99:            write(str[n]:1)
+             end;
+          writeln
+       end
+ end.
