@@ -1,0 +1,32 @@
+       INTEGER XSIZE/131/,YSIZE/48/
+       DOUBLE PRECISION MINRE/-2/,MINIM/-1/
+       DOUBLE PRECISION MAXRE/1/,MAXIM/1/
+       INTEGER X,Y,N
+       DOUBLE PRECISION STEPX,STEPY,RE,IM,ZR,ZI,A,B
+       LOGICAL*1 STR(27)/'A','B','C','D','E','F','G','H','I',
+      &                  'J','K','L','M','N','O','P','Q','R',
+      &                  'S','T','U','V','W','X','Y','Z',' '/
+       LOGICAL*1 LINE(132)
+       STEPX=(MAXRE-MINRE)/XSIZE
+       STEPY=(MAXIM-MINIM)/YSIZE
+       DO 30 Y=0,YSIZE
+         IM=MINIM+STEPY*Y
+         DO 20 X=0,XSIZE
+           RE=MINRE+STEPX*X
+           ZR=RE
+           ZI=IM
+           N=1
+ 10        A=ZR*ZR
+           B=ZI*ZI
+           IF((A+B).GT.4) GOTO 99
+          ZI=ZR*ZI*2+IM
+          ZR=A-B+RE
+          N=N+1
+          IF(N.LT.27) GOTO 10
+99        LINE(X+1)=STR(N)
+20      CONTINUE
+        WRITE(6,100) LINE
+30    CONTINUE
+      STOP
+100   FORMAT(1X,132A1)
+      END
