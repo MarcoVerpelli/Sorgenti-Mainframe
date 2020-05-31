@@ -154,7 +154,7 @@ C     ******************************************************************00002300
 C     THIS SUBROUTINE WILL ANALYZE THE INPUT DATA AND PRINT A PICTURE   00015300
       DIMENSION ILINE(121),INUM(50),ICHR(50)                            00015400
       COMMON ISET                                                       00015500
-   10 READ (5,1000) (INUM(I),ICHR(I),I=1,ISET)                          00015600
+   10 READ (7,1000) (INUM(I),ICHR(I),I=1,ISET)                          00015600
       DO 40 I = 1, ISET                                                 00015700
       IF (INUM(I)+1)100,11,100                                          00015800
 C     HERE WE WRITE A LINE TO THE PRINTER AND GO BUILD ANOTHER          00015900
