@@ -1,0 +1,181 @@
+C     ******************************************************************00000100
+C     *                                                                *00000200
+C     * PRINTS CALENDAR, ONE MONTH PER PAGE WITH PICTURES OPTIONAL.    *00000300
+C     *                                                                *00000400
+C     * BEGINNING MONTH AND YEAR, ENDING MONTH AND YEAR MUST BE PRO-   *00000500
+C     * VIDED IN 4(I6)  FORMAT ON A CARD IMMEDIATELY FOLLOWING         *00000600
+C     * CARD 98 OF DECK.                                               *00000700
+C     *                                                                *00000800
+C     * IF GRID LINES ARE DESIRED, A 1 MUST APPEAR IN COLUMN 30 OF     *00000900
+C     * ABOVE CARD.  A BLANK OR ZERO WILL SUPPRESS GRID LINES.         *00001000
+C     *                                                                *00001100
+C     * ALL PICTURE DATA DECKS MUST BE TERMINATED WITH CODE -2.        *00001200
+C     * CONSECUTIVE -2*S WILL RESULT IN NO PICTURE BEING PRINTED       *00001300
+C     * FOR THAT MONTH.                                                *00001400
+C     *                                                                *00001500
+C     * PICTURE FORMAT CODES --                                        *00001600
+C     *    -1    END OF LINE                                           *00001700
+C     *    -2    END OF PICTURE                                        *00001800
+C     *    -3    LIST CARDS, ONE PER LINE, FORMAT 13A6                 *00001900
+C     *    -4    LIST CARDS, TWO PER LINE, FORMAT 11A6/11A6            *00002000
+C     *    -5    LIST CARDS, TWO PER LINE, FORMAT 12A6/10A6            *00002100
+C     *                                                                *00002200
+C     ******************************************************************00002300
+      IMPLICIT REAL*8 (A-H,O-Z)                                         00002400
+      DIMENSION AMONTH (12,7,13), ANAM(22), ANUM(2,10,5), NODS(12),     00002500
+     1          CAL(60,22)                                              00002600
+      COMMON ISET                                                       00002700
+      READ (5,1) (((AMONTH(I,J,K),K=1,13),J=1,7),I=1,12)                00002800
+      READ (5,2) (ANAM(I),I=1,22)                                       00002900
+      READ (5,3) (((ANUM(I,J,K),J=1,10),K=1,5),I=1,2)                   00003000
+      READ (5,4) (NODS(I),I=1,12)                                       00003100
+      READ (5,1) BLANK,ONE,ALIN1,ALIN2,ALIN3,ALIN4                      00003200
+      READ (5,4) MF,IYR,MTHLST,IYRLST,LNSW                              00003300
+      ISET=25                                                           00003400
+      DO 10 I=1,60                                                      00003500
+      DO 10 J=1,22                                                      00003600
+10    CAL(I,J)= BLANK                                                   00003700
+      CAL(1,1)= ONE                                                     00003800
+      DO 20 J=1,22                                                      00003900
+20    CAL(11,J)=ANAM(J)                                                 00004000
+      IF (LNSW) 122,142,122                                             00004100
+122   DO 125 I=20,60,8                                                  00004200
+      DO 125 J=1,22                                                     00004300
+125   CAL(I,J)=ALIN2                                                    00004400
+      DO 140 J=4,19,3                                                   00004500
+      I=13                                                              00004600
+127   DO 130 L=1,7                                                      00004700
+      CAL(I,J)=ALIN1                                                    00004800
+130   I=I+1                                                             00004900
+      IF (I-55) 135,135,140                                             00005000
+135   CAL(I,J)=ALIN3                                                    00005100
+      I=I+1                                                             00005200
+      GO TO 127                                                         00005300
+140   CONTINUE                                                          00005400
+      DO 141 I=20,60,8                                                  00005500
+141   CAL(I,1)=ALIN4                                                    00005600
+142   IDOW=(IYR-1751)+(IYR-1753)/4-(IYR-1701)/100+(IYR-1601)/400        00005700
+      IDOW=IDOW-7*((IDOW-1)/7)                                          00005800
+55    IF (IYR-IYRLST) 60,65,100                                         00005900
+60    ML=12                                                             00006000
+      GO TO 70                                                          00006100
+65    ML=MTHLST                                                         00006200
+70    IY1=IYR/1000                                                      00006300
+      NUMB=IYR-1000*IY1                                                 00006400
+      IY2=NUMB/100                                                      00006500
+      NUMB=NUMB-100*IY2                                                 00006600
+      IY3=NUMB/10                                                       00006700
+      NUMB=NUMB-10*IY3                                                  00006800
+      IY4=NUMB                                                          00006900
+      DO 72 J=1,5                                                       00007000
+      CAL(J+3,1)=ANUM(2,IY1+1,J)                                        00007100
+      CAL(J+1,2)=ANUM(2,IY2+1,J)                                        00007200
+      CAL(J+1,21)=ANUM(2,IY3+1,J)                                       00007300
+72    CAL(J+3,22)=ANUM(2,IY4+1,J)                                       00007400
+      LPYRSW=0                                                          00007500
+      IF (IYR-4*(IYR/4)) 90,75,90                                       00007600
+75    IF (IYR-100*(IYR/100)) 85,80,85                                   00007700
+80    IF (IYR-400*(IYR/400)) 90,85,90                                   00007800
+85    LPYRSW=1                                                          00007900
+90    NODS(2)=NODS(2)+LPYRSW                                            00008000
+      IF (MF-1) 100,110,95                                              00008100
+95    MF=MF-1                                                           00008200
+      DO 105 MONTH=1,MF                                                 00008300
+105   IDOW=IDOW+NODS(MONTH)                                             00008400
+      IDOW=IDOW-7*((IDOW-1)/7)                                          00008500
+      MF=MF+1                                                           00008600
+110   DO 51 MONTH=MF,ML                                                 00008700
+      LSTDAY=NODS(MONTH)                                                00008800
+      DO 115 I=1,7                                                      00008900
+      DO 115 JM=1,13                                                    00009000
+      J=JM+4                                                            00009100
+115   CAL(I,J)=AMONTH(MONTH,I,JM)                                       00009200
+      IF (IDOW-1) 160,160,120                                           00009300
+120   ID=IDOW-1                                                         00009400
+      J=2                                                               00009500
+      DO 155 K=1,ID                                                     00009600
+      DO 150 I=14,18                                                    00009700
+      CAL (I,J)= BLANK                                                  00009800
+150   CAL(I,J+1)= BLANK                                                 00009900
+      J=J+3                                                             00010000
+155   CONTINUE                                                          00010100
+160   IDAY=1                                                            00010200
+      II=14                                                             00010300
+25    J=3*IDOW-1                                                        00010400
+      N=IDAY/10+1                                                       00010500
+      I=II                                                              00010600
+      DO 30 K=1,5                                                       00010700
+      CAL(I,J)=ANUM(1,N,K)                                              00010800
+30    I=I+1                                                             00010900
+      N=IDAY-10*N+11                                                    00011000
+      J=J+1                                                             00011100
+      I=II                                                              00011200
+      DO 35 K=1,5                                                       00011300
+      CAL(I,J)=ANUM(2,N,K)                                              00011400
+35    I=I+1                                                             00011500
+      IDOW=IDOW+1                                                       00011600
+      IF (IDOW-7) 45,45,40                                              00011700
+40    IDOW=1                                                            00011800
+      II=II+8                                                           00011900
+45    IDAY=IDAY+1                                                       00012000
+      IF (IDAY-LSTDAY) 25,25,50                                         00012100
+50    ID=IDOW                                                           00012200
+205   I=II                                                              00012300
+      J=3*ID-1                                                          00012400
+      DO 210 K=1,5                                                      00012500
+      CAL(I,J)= BLANK                                                   00012600
+      CAL(I,J+1)= BLANK                                                 00012700
+210   I=I+1                                                             00012800
+      IF (ID-7) 215,220,220                                             00012900
+215   ID=ID+1                                                           00013000
+      GO TO 205                                                         00013100
+220   IF (II-54) 225,230,230                                            00013200
+225   II=54                                                             00013300
+      ID=1                                                              00013400
+      GO TO 205                                                         00013500
+230   CALL SNPPIC                                                       00013600
+      WRITE (6,5) ((CAL(I,J),J=1,22),I=1,60)                            00013700
+51    CONTINUE                                                          00013800
+      IF (IYR-IYRLST) 235,100,100                                       00013900
+235   NODS(2)=NODS(2)-LPYRSW                                            00014000
+      IYR=IYR+1                                                         00014100
+      MF=1                                                              00014200
+      GO TO 55                                                          00014300
+100   STOP                                                              00014400
+1     FORMAT (13A6)                                                     00014500
+2     FORMAT (11A6)                                                     00014600
+3     FORMAT (10A6)                                                     00014700
+4     FORMAT (12I6)                                                     00014800
+5     FORMAT (22A6)                                                     00014900
+    6 FORMAT(/,1X)                                                      00015000
+      END                                                               00015100
+      SUBROUTINE SNPPIC                                                 00015200
+C     THIS SUBROUTINE WILL ANALYZE THE INPUT DATA AND PRINT A PICTURE   00015300
+      DIMENSION ILINE(121),INUM(50),ICHR(50)                            00015400
+      COMMON ISET                                                       00015500
+   10 READ (5,1000) (INUM(I),ICHR(I),I=1,ISET)                          00015600
+      DO 40 I = 1, ISET                                                 00015700
+      IF (INUM(I)+1)100,11,100                                          00015800
+C     HERE WE WRITE A LINE TO THE PRINTER AND GO BUILD ANOTHER          00015900
+   11 DO 15 L = K, 121                                                  00016000
+   15 ILINE(L)=ICHR(I)                                                  00016100
+      WRITE (6,2000) (ILINE(K),K=1,121)                                 00016200
+      DO 20 K = 1, 121                                                  00016300
+   20 ILINE(K)=ICHR(I)                                                  00016400
+      K=1                                                               00016500
+      I=I+1                                                             00016600
+  100 ITST=INUM(I)                                                      00016700
+      IF (ITST + 2) 101,200,101                                         00016800
+  101 IF (ITST) 102,40,102                                              00016900
+  102 DO 30 J = 1, ITST                                                 00017000
+      ILINE(K)=ICHR(I)                                                  00017100
+      K=K+1                                                             00017200
+   30 CONTINUE                                                          00017300
+   40 CONTINUE                                                          00017400
+      GOTO 10                                                           00017500
+C     HERE WE EXIT THE PICTURE AND RETURN TO THE CALLING PROGRAM        00017600
+  200 RETURN                                                            00017700
+C     FORMAT STATEMENTS                                                 00017800
+ 1000 FORMAT (25(I2,A1))                                                00017900
+ 2000 FORMAT (121A1)                                                    00018000
+      END                                                               00018100
