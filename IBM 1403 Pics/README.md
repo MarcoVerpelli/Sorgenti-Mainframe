@@ -9,3 +9,5 @@ Se volete riprodurre il risultato (al massimo delle dimensioni) vi occorrono:
 4) un "processore" di immagini per convertire i pdf in png, eliminare i margini bianchi, incollare (virtualmente) le immagini https://imagemagick.org
 
 Avete notato che al giorno d'oggi si può fare senza un mainframe ed una 1403?
+
+![Astro](https://github.com/MarcoVerpelli/Sorgenti-Mainframe/blob/master/IBM 1403 Pics/Astro.png)
