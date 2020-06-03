@@ -10,4 +10,4 @@ Se volete riprodurre il risultato (al massimo delle dimensioni) vi occorrono:
 
 Avete notato che al giorno d'oggi si può fare senza un mainframe ed una 1403?
 
-![Astro]("https://github.com/MarcoVerpelli/Sorgenti-Mainframe/blob/master/IBM 1403 Pics/Astro.png")
+![Astro](https://github.com/MarcoVerpelli/Sorgenti-Mainframe/blob/master/"IBM 1403 Pics"/Astro.png)
