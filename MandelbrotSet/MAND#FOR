@@ -2,8 +2,8 @@ C
 C     COSTANTI GLOBALI
 C
       BLOCK DATA
-      COMMON XSIZE,YSIZE,MAXIT,STR
-      INTEGER XSIZE/131/,YSIZE/48/,MAXIT/27/
+      COMMON MAXIT,STR
+      INTEGER MAXIT/27/
 C
 C     DIMENSIONE DI STR = MAXIT
 C
@@ -14,38 +14,46 @@ C
 C
 C     CALCOLA & STAMPA
 C
-      SUBROUTINE MANDEL(MINRE,MINIM,MAXRE,MAXIM)
-      COMMON XSIZE,YSIZE,MAXIT,STR
-      INTEGER X,Y,N,XSIZE,YSIZE,MAXIT
+      SUBROUTINE MANDEL(MINRE,MINIM,MAXRE,MAXIM,STRP)
+      COMMON MAXIT,STR
+      INTEGER X,Y,N,XSIZE,YSIZE,MAXIT,STRP,S,I,F
       DOUBLE PRECISION MINRE,MINIM,MAXRE,MAXIM,
      &                 STEPX,STEPY,RE,IM,ZR,ZI,A,B
       LOGICAL*1 LINE(132),STR(27)
+      XSIZE=131*STRP
+      YSIZE=48*STRP
       STEPX=(MAXRE-MINRE)/XSIZE
       STEPY=(MAXIM-MINIM)/YSIZE
-      DO 40 Y=0,YSIZE
-        IM=MINIM+STEPY*Y
-        DO 30 X=0,XSIZE
-          RE=MINRE+STEPX*X
-          ZR=RE
-          ZI=IM
-          N=1
-10        A=ZR*ZR
-          B=ZI*ZI
-          IF((A+B).GT.4) GOTO 20
-          ZI=ZR*ZI*2+IM
-          ZR=A-B+RE
-          N=N+1
-          IF(N.LT.MAXIT) GOTO 10
-20        LINE(X+1)=STR(N)
-30      CONTINUE
-        WRITE(6,100) LINE
-40    CONTINUE
+      DO 50 S=1,STRP
+        I=132*(S-1)
+        F=132*S-1
+        DO 40 Y=0,YSIZE
+          IM=MINIM+STEPY*Y
+          DO 30 X=I,F
+            RE=MINRE+STEPX*X
+            ZR=RE
+            ZI=IM
+            N=1
+10          A=ZR*ZR
+            B=ZI*ZI
+            IF((A+B).GT.4) GOTO 20
+            ZI=ZR*ZI*2+IM
+            ZR=A-B+RE
+            N=N+1
+            IF(N.LT.MAXIT) GOTO 10
+20          LINE(X-I+1)=STR(N)
+30        CONTINUE
+          WRITE(6,100) LINE
+40      CONTINUE
+      IF(S.LT.STRP) WRITE(6,200)
+50    CONTINUE
       RETURN
 100   FORMAT(1X,132A1)
+200   FORMAT('1')
       END
 C
 C     PROGRAMMA PRINCIPALE
 C
-      CALL MANDEL(-2.,-1.,1.,1.)
+      CALL MANDEL(-2.,-1.,1.,1.,5)
       STOP
       END
