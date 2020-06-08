@@ -1,41 +1,47 @@
-program MandelbrotSet(output);
-const Xsize=131;
-      Ysize=48;
-      maxIt=27;
-var str:array[1..maxIt] of char;
+program MandelbrotSet(output); (* poster dello insieme di Mandelbrot *)
+const maxIt=27; (* numero di "colori" in realtà caratteri *)
+var str:array[1..maxIt] of char; (* tavolozza dei colori/caratteri *)
 
-   procedure Mandelbrot(minRE,minIM,maxRE,maxIM:real);
-   label 99;
+   procedure Mandelbrot(minRE,minIM,maxRE,maxIM:real; strp:integer);
+   label 99; (* eat your heart out Dijkstra *)
    var stepX,stepY,re,im,zr,zi,a,b:real;
-       x,y,n:integer;
+       Xsize,Ysize,x,y,n,s:integer;
    begin
+      Xsize:=131*strp; (* le colonne vengono contate 0..131 *)
+      Ysize:=48*strp; (* 48 righe approssimano il rapporto 3:2 *)
       stepX:=(maxRE-minRE)/Xsize;
       stepY:=(maxIM-minIM)/Ysize;
-      for y:=0 to Ysize
+      for s:=1 to strp (* ciclo principale: quante striscie *)
       do begin
-            im:=minIM+stepY*y;
-            write(' ');
-            for x:=0 to Xsize
+            for y:=0 to Ysize (* ciclo righe *)
             do begin
-                  re:=minRE+stepX*x;
-                  zr:=re;
-                  zi:=im;
-                  for n:=1 to maxIt
+                  im:=minIM+stepY*y;
+                  write(' ');
+                  for x:=132*(s-1) to 132*s-1 (* ciclo colonne *)
                   do begin
-                        a:=zr*zr;
-                        b:=zi*zi;
-                        if(a+b)>4
-                        then goto 99;
-                        zi:=zr*zi*2+im;
-                        zr:=a-b+re
+                        re:=minRE+stepX*x;
+                        zr:=re;
+                        zi:=im;
+                        for n:=1 to maxIt (* ciclo colori/caratteri *)
+                        do begin
+                              a:=zr*zr;
+                              b:=zi*zi;
+                              if(a+b)>4
+                              then goto 99;
+                              zi:=zr*zi*2+im;
+                              zr:=a-b+re
+                           end;
+   99:                  write(str[n]:1)
                      end;
-   99:            write(str[n]:1)
+                  writeln
                end;
-            writeln
+            if s<strp (* finito una stricia, se ne seguono altre... *)
+            then writeln('1') (* ...inizia in una nuova pagina *)
          end
    end;
 
 begin
-   str:='ABCDEFGHIJKLMNOPQRSTUVWXYZ ';
-   Mandelbrot(-2,-1,1,1)
+   str:='ABCDEFGHIJKLMNOPQRSTUVWXYZ '; (* i colori/caratteri *)
+   (* stampa un rettangolo 3:2 "spalmato" su 5 stricie *)
+   Mandelbrot(-2,-1,1,1,5)
 end.
