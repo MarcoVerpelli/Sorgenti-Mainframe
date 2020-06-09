@@ -1,5 +1,5 @@
 program MandelbrotSet(output); (* poster dello insieme di Mandelbrot *)
-const maxIt=27; (* numero di "colori" in realt‡ caratteri *)
+const maxIt=27; (* numero di "colori" in realt√† caratteri *)
 var str:array[1..maxIt] of char; (* tavolozza dei colori/caratteri *)
 
    procedure Mandelbrot(minRE,minIM,maxRE,maxIM:real; strp:integer);
@@ -42,6 +42,6 @@ var str:array[1..maxIt] of char; (* tavolozza dei colori/caratteri *)
 
 begin
    str:='ABCDEFGHIJKLMNOPQRSTUVWXYZ '; (* i colori/caratteri *)
-   (* stampa un rettangolo 3:2 "spalmato" su 5 stricie *)
+   (* stampa un rettangolo 3:2 "spalmato" su 5 striscie *)
    Mandelbrot(-2,-1,1,1,5)
 end.
