@@ -22,11 +22,12 @@ C
       LOGICAL*1 LINE(132),STR(27)
       XSIZE=131*STRP
       YSIZE=48*STRP
+      STRP=STRP-1
       STEPX=(MAXRE-MINRE)/XSIZE
       STEPY=(MAXIM-MINIM)/YSIZE
-      DO 50 S=1,STRP
-        I=132*(S-1)
-        F=132*S-1
+      DO 50 S=0,STRP
+        I=132*S
+        F=I+131
         DO 40 Y=0,YSIZE
           IM=MINIM+STEPY*Y
           DO 30 X=I,F
