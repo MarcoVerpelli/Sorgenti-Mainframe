@@ -1,5 +1,5 @@
 program MandelbrotSet(output); (* poster dello insieme di Mandelbrot *)
-const maxIt=27; (* numero di "colori" in realt√† caratteri *)
+const maxIt=27; (* numero di "colori" in realt‡ caratteri *)
 var str:array[1..maxIt] of char; (* tavolozza dei colori/caratteri *)
 
    procedure Mandelbrot(minRE,minIM,maxRE,maxIM:real; strp:integer);
@@ -9,15 +9,16 @@ var str:array[1..maxIt] of char; (* tavolozza dei colori/caratteri *)
    begin
       Xsize:=131*strp; (* le colonne vengono contate 0..131 *)
       Ysize:=48*strp; (* 0..49 righe approssimano il rapporto 3:2 *)
+      strp:=strp-1;
       stepX:=(maxRE-minRE)/Xsize;
       stepY:=(maxIM-minIM)/Ysize;
-      for s:=1 to strp (* ciclo principale: quante striscie *)
+      for s:=0 to strp (* ciclo principale: quante striscie *)
       do begin
             for y:=0 to Ysize (* ciclo righe *)
             do begin
                   im:=minIM+stepY*y;
                   write(' ');
-                  for x:=132*(s-1) to 132*s-1 (* ciclo colonne *)
+                  for x:=132*s to x+131 (* ciclo colonne *)
                   do begin
                         re:=minRE+stepX*x;
                         zr:=re;
